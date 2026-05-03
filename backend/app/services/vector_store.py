@@ -81,6 +81,7 @@ class VectorStore:
 
             item = self.metadata[idx].copy()
             item["score"] = float(score)
+            item["vector_idx"] = int(idx)
             results.append(item)
 
         return results
