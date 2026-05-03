@@ -68,7 +68,7 @@
         </div>
       </section>
 
-      <section v-if="answer" class="card wide">
+      <section v-if="answer" ref="answerSection" class="card wide">
         <h2>3. 回答结果</h2>
         <div class="markdown-body" v-html="renderedAnswer"></div>
 
@@ -86,13 +86,45 @@
         </div>
         <p v-else class="tip">本次没有返回引用来源。</p>
       </section>
+
+      <section class="card wide">
+        <div class="card-head">
+          <h2>4. 历史记录</h2>
+          <button class="btn secondary" @click="clearHistory" :disabled="!historyList.length">
+            清空历史
+          </button>
+        </div>
+
+        <p v-if="!historyList.length" class="tip">暂无历史记录，先去问几个问题吧。</p>
+
+        <div v-else class="history-list">
+          <article v-for="item in historyList" :key="item.id" class="history-item"
+            :class="{ active: item.id === selectedHistoryId }">
+            <div class="history-meta">
+              <span class="history-time">{{ item.createdAt }}</span>
+              <span class="history-topk">TopK: {{ item.topK }}</span>
+              <span class="history-topk">引用数: {{ item.sources.length }}</span>
+            </div>
+
+            <div class="history-question">
+              {{ item.question }}
+            </div>
+
+            <div class="history-actions">
+              <button class="btn" @click="useHistoryItem(item)">恢复</button>
+              <button class="btn danger" @click="deleteHistoryItem(item.id)">删除</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
     </main>
   </div>
 </template>
 
 <script setup>
 
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, nextTick } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 
@@ -100,6 +132,8 @@ marked.setOptions({
   breaks: true,
   gfm: true
 })
+
+const answerSection = ref(null)
 
 const renderedAnswer = computed(() => {
   if (!answer.value) return ''
@@ -122,6 +156,69 @@ const topK = ref(5)
 const answer = ref('')
 const sources = ref([])
 const stats = ref(null)
+
+const historyList = ref([])
+const selectedHistoryId = ref('')
+const HISTORY_KEY = 'rag_course_qa_history_v1'
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY)
+    historyList.value = raw ? JSON.parse(raw) : []
+  } catch (err) {
+    historyList.value = []
+  }
+}
+
+function saveHistory() {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(historyList.value))
+}
+
+function addHistoryItem(questionText, answerText, sourceList, topKValue) {
+  const item = {
+    id: Date.now() + '_' + Math.random().toString(16).slice(2),
+    question: questionText,
+    answer: answerText,
+    sources: sourceList || [],
+    topK: topKValue,
+    createdAt: new Date().toLocaleString()
+  }
+
+  // 最新的放前面
+  historyList.value.unshift(item)
+
+  // 可选：限制最多保存 20 条，避免越来越多
+  if (historyList.value.length > 20) {
+    historyList.value = historyList.value.slice(0, 20)
+  }
+
+  saveHistory()
+}
+
+function useHistoryItem(item) {
+  selectedHistoryId.value = item.id
+  question.value = item.question
+  answer.value = item.answer
+  sources.value = item.sources || []
+
+  nextTick(() => {
+    answerSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
+}
+
+function deleteHistoryItem(id) {
+  historyList.value = historyList.value.filter(item => item.id !== id)
+  if (selectedHistoryId.value === id) {
+    selectedHistoryId.value = ''
+  }
+  saveHistory()
+}
+
+function clearHistory() {
+  historyList.value = []
+  selectedHistoryId.value = ''
+  localStorage.removeItem(HISTORY_KEY)
+}
 
 function onFileChange(event) {
   selectedFile.value = event.target.files?.[0] ?? null
@@ -210,6 +307,8 @@ async function askQuestion() {
     const data = await res.json()
     answer.value = data.answer || ''
     sources.value = data.sources || []
+
+    addHistoryItem(question.value, answer.value, sources.value, topK.value)
   } catch (err) {
     errorMsg.value = `问答失败：${err.message || err}`
   } finally {
@@ -247,6 +346,7 @@ async function clearKnowledgeBase() {
 
 onMounted(() => {
   refreshStats()
+  loadHistory()
 })
 </script>
 
@@ -553,4 +653,45 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+/* 历史记录 */
+.history-list {
+  display: grid;
+  gap: 12px;
+}
+
+.history-item {
+  background: #0b1220;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 16px;
+  padding: 14px;
+  transition: 0.2s;
+}
+
+.history-item.active {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
+}
+
+.history-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: #93c5fd;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.history-question {
+  color: #e5e7eb;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  margin-bottom: 12px;
+}
+
+.history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 </style>
