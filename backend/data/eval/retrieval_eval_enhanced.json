@@ -1,0 +1,242 @@
+[
+  {
+    "id": "q01",
+    "question": "进程是什么",
+    "targets": [
+      {
+        "source": "os_process_thread.txt",
+        "anchors": ["进程是资源分配的基本单位"]
+      }
+    ]
+  },
+  {
+    "id": "q02",
+    "question": "线程是什么",
+    "targets": [
+      {
+        "source": "os_process_thread.txt",
+        "anchors": ["线程是CPU调度的基本单位"]
+      }
+    ]
+  },
+  {
+    "id": "q03",
+    "question": "进程和线程有什么区别",
+    "targets": [
+      {
+        "source": "os_process_thread.txt",
+        "anchors": ["进程之间地址空间相互独立", "同一进程内的多个线程共享该进程的地址空间"]
+      }
+    ]
+  },
+  {
+    "id": "q04",
+    "question": "为什么线程切换通常比进程切换快",
+    "targets": [
+      {
+        "source": "os_process_thread.txt",
+        "anchors": ["线程创建和切换的开销通常小于进程", "线程切换通常只需切换部分运行状态"]
+      }
+    ]
+  },
+  {
+    "id": "q05",
+    "question": "死锁的四个必要条件是什么",
+    "targets": [
+      {
+        "source": "os_process_thread.txt",
+        "anchors": ["互斥条件", "请求与保持条件", "不可剥夺条件", "循环等待条件"]
+      }
+    ]
+  },
+  {
+    "id": "q06",
+    "question": "上下文切换会保存哪些状态",
+    "targets": [
+      {
+        "source": "os_process_thread.txt",
+        "anchors": ["进程切换需要保存和恢复上下文", "寄存器", "程序计数器"]
+      }
+    ]
+  },
+  {
+    "id": "q07",
+    "question": "什么是虚拟内存",
+    "targets": [
+      {
+        "source": "os_memory_scheduling.txt",
+        "anchors": ["虚拟内存让每个进程都仿佛拥有一整块连续的大地址空间"]
+      }
+    ]
+  },
+  {
+    "id": "q08",
+    "question": "页表的作用是什么",
+    "targets": [
+      {
+        "source": "os_memory_scheduling.txt",
+        "anchors": ["页表", "虚拟地址映射到物理地址"]
+      }
+    ]
+  },
+  {
+    "id": "q09",
+    "question": "页面置换是什么",
+    "targets": [
+      {
+        "source": "os_memory_scheduling.txt",
+        "anchors": ["页面置换", "物理内存不足"]
+      }
+    ]
+  },
+  {
+    "id": "q10",
+    "question": "LRU和FIFO有什么区别",
+    "targets": [
+      {
+        "source": "os_memory_scheduling.txt",
+        "anchors": ["FIFO", "LRU"]
+      }
+    ]
+  },
+  {
+    "id": "q11",
+    "question": "时间片轮转调度是什么",
+    "targets": [
+      {
+        "source": "os_memory_scheduling.txt",
+        "anchors": ["时间片轮转", "就绪队列"]
+      }
+    ]
+  },
+  {
+    "id": "q12",
+    "question": "就绪队列有什么作用",
+    "targets": [
+      {
+        "source": "os_memory_scheduling.txt",
+        "anchors": ["就绪队列"]
+      }
+    ]
+  },
+  {
+    "id": "q13",
+    "question": "数据链路层有什么作用",
+    "targets": [
+      {
+        "source": "net_datalink.txt",
+        "anchors": ["负责在相邻节点之间提供可靠的数据传输服务", "封装成帧"]
+      }
+    ]
+  },
+  {
+    "id": "q14",
+    "question": "帧是什么",
+    "targets": [
+      {
+        "source": "net_datalink.txt",
+        "anchors": ["帧是数据链路层的传送单位"]
+      }
+    ]
+  },
+  {
+    "id": "q15",
+    "question": "MAC地址有什么作用",
+    "targets": [
+      {
+        "source": "net_datalink.txt",
+        "anchors": ["物理地址寻址", "MAC地址"]
+      }
+    ]
+  },
+  {
+    "id": "q16",
+    "question": "数据链路层如何进行差错控制",
+    "targets": [
+      {
+        "source": "net_datalink.txt",
+        "anchors": ["数据的检错与重发", "CRC"]
+      }
+    ]
+  },
+  {
+    "id": "q17",
+    "question": "网络层负责什么",
+    "targets": [
+      {
+        "source": "net_network_transport.txt",
+        "anchors": ["路由选择", "IP地址", "分组转发"]
+      }
+    ]
+  },
+  {
+    "id": "q18",
+    "question": "TCP和UDP有什么区别",
+    "targets": [
+      {
+        "source": "net_network_transport.txt",
+        "anchors": ["TCP提供面向连接、可靠传输", "UDP更简单，开销更小"]
+      }
+    ]
+  },
+  {
+    "id": "q19",
+    "question": "端口的作用是什么",
+    "targets": [
+      {
+        "source": "net_network_transport.txt",
+        "anchors": ["端口用于区分同一主机上的不同应用程序"]
+      }
+    ]
+  },
+  {
+    "id": "q20",
+    "question": "Socket是什么",
+    "targets": [
+      {
+        "source": "net_network_transport.txt",
+        "anchors": ["Socket通常是应用层与传输层之间的接口"]
+      }
+    ]
+  },
+  {
+    "id": "q21",
+    "question": "什么是B+树索引",
+    "targets": [
+      {
+        "source": "db_index_transaction.txt",
+        "anchors": ["B+树", "叶子节点有序", "适合范围查询"]
+      }
+    ]
+  },
+  {
+    "id": "q22",
+    "question": "事务的ACID分别是什么",
+    "targets": [
+      {
+        "source": "db_index_transaction.txt",
+        "anchors": ["原子性", "一致性", "隔离性", "持久性"]
+      }
+    ]
+  },
+  {
+    "id": "q23",
+    "question": "事务为什么要用锁",
+    "targets": [
+      {
+        "source": "db_index_transaction.txt",
+        "anchors": ["锁和隔离级别控制并发访问", "脏读", "不可重复读", "幻读"]
+      }
+    ]
+  },
+  {
+    "id": "q24",
+    "question": "redo日志和undo日志有什么作用",
+    "targets": [
+      {
+        "source": "db_index_transaction.txt",
+        "anchors": ["redo日志", "undo日志", "崩溃恢复"]
+      }
+    ]
+  }
+]

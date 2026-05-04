@@ -1,0 +1,44 @@
+[
+  {
+    "id": "q1",
+    "question": "进程是什么",
+    "targets": [
+      { "source": "re.txt" }
+    ]
+  },
+  {
+    "id": "q2",
+    "question": "进程和线程有什么区别",
+    "targets": [
+      { "source": "re.txt" }
+    ]
+  },
+  {
+    "id": "q3",
+    "question": "死锁的四个必要条件是什么",
+    "targets": [
+      { "source": "re.txt" }
+    ]
+  },
+  {
+    "id": "q4",
+    "question": "数据链路层有什么作用",
+    "targets": [
+      { "source": "zz.txt" }
+    ]
+  },
+  {
+    "id": "q5",
+    "question": "数据链路层的传输单位是什么",
+    "targets": [
+      { "source": "zz.txt" }
+    ]
+  },
+  {
+    "id": "q6",
+    "question": "线程是什么",
+    "targets": [
+      { "source": "re.txt" }
+    ]
+  }
+]
