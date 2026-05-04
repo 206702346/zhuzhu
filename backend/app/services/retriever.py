@@ -5,6 +5,7 @@ from app.services.embedding import get_embedding_model
 from app.services.vector_store import vector_store
 from app.services.bm25_retriever import bm25_search
 from app.services.reranker import get_reranker
+from app.services.text_utils import calc_lexical_score
 
 
 def vector_search(query: str, top_k: int) -> List[Dict[str, Any]]:
@@ -21,7 +22,7 @@ def hybrid_search(
     rrf_k: int = 60,
 ) -> List[Dict[str, Any]]:
     """
-    RRF 融合 BM25 和向量检索结果。
+    RRF 融合 BM25 和向量检索结果
     """
     if candidate_k is None:
         candidate_k = max(settings.top_k * 5, 10)
@@ -48,15 +49,27 @@ def hybrid_search(
                 "source": item.get("source"),
                 "chunk_id": item.get("chunk_id"),
                 "text": item.get("text"),
+
+                # 融合分
                 "hybrid_score": 0.0,
-                "score": 0.0,  # 先暂存为融合分，后面 rerank 会覆盖成最终分
+                "score": 0.0,
+
+                # 原始检索分
                 "vector_score": None,
                 "bm25_score": None,
+
+                # 排名
                 "vector_rank": None,
                 "bm25_rank": None,
                 "hybrid_rank": None,
-                "rerank_score": None,
                 "rerank_rank": None,
+
+                # rerank 分
+                "rerank_score": None,
+
+                # 词面分
+                "lexical_score": None,
+
                 "match_sources": [],
             }
 
@@ -98,31 +111,55 @@ def rerank_candidates(
     top_k: int,
 ) -> List[Dict[str, Any]]:
     """
-    使用 CrossEncoder 对候选片段进行重排序。
+    CrossEncoder rerank + 词面加权
     """
     if not candidates:
         return []
 
+    lexical_weight = max(0.0, float(settings.lexical_boost_weight))
+
+    # 先计算词面分
+    candidates_with_lexical = []
+    for item in candidates:
+        new_item = item.copy()
+        lexical_score = calc_lexical_score(query, new_item.get("text", ""))
+        new_item["lexical_score"] = float(lexical_score)
+        candidates_with_lexical.append(new_item)
+
+    # 如果关闭 rerank，就只做 hybrid + lexical boost
     if not settings.rerank_enabled:
-        for rank, item in enumerate(candidates, start=1):
+        for rank, item in enumerate(candidates_with_lexical, start=1):
             item["rerank_rank"] = rank
             item["rerank_score"] = None
-            item["score"] = item.get("hybrid_score", item.get("score", 0.0))
-        return candidates[:top_k]
+
+            base_score = float(item.get("hybrid_score", item.get("score", 0.0)))
+            final_score = base_score * (1.0 + lexical_weight * float(item.get("lexical_score", 0.0)))
+            item["score"] = float(final_score)
+
+        candidates_with_lexical.sort(key=lambda x: x["score"], reverse=True)
+
+        for rank, item in enumerate(candidates_with_lexical, start=1):
+            item["rerank_rank"] = rank
+
+        return candidates_with_lexical[:top_k]
 
     try:
         reranker = get_reranker()
-        passages = [item["text"] for item in candidates]
-        scores = reranker.score(query, passages)
+        passages = [item["text"] for item in candidates_with_lexical]
+        raw_scores = reranker.score(query, passages)
 
         scored = []
-        for item, rerank_score in zip(candidates, scores):
+        for item, rerank_score in zip(candidates_with_lexical, raw_scores):
             new_item = item.copy()
             new_item["rerank_score"] = float(rerank_score)
-            new_item["score"] = float(rerank_score)  # 最终分，用于兼容前端
+
+            lexical_score = float(new_item.get("lexical_score", 0.0))
+            final_score = float(rerank_score) * (1.0 + lexical_weight * lexical_score)
+
+            new_item["score"] = float(final_score)
             scored.append(new_item)
 
-        scored.sort(key=lambda x: x["rerank_score"], reverse=True)
+        scored.sort(key=lambda x: x["score"], reverse=True)
 
         for rank, item in enumerate(scored, start=1):
             item["rerank_rank"] = rank
@@ -130,14 +167,18 @@ def rerank_candidates(
         return scored[:top_k]
 
     except Exception as e:
-        print(f"[WARN] rerank 失败，回退到混合检索结果: {e}")
+        print(f"[WARN] rerank 失败，回退到 hybrid + lexical：{e}")
 
-        for rank, item in enumerate(candidates, start=1):
+        for rank, item in enumerate(candidates_with_lexical, start=1):
             item["rerank_rank"] = None
             item["rerank_score"] = None
-            item["score"] = item.get("hybrid_score", item.get("score", 0.0))
 
-        return candidates[:top_k]
+            base_score = float(item.get("hybrid_score", item.get("score", 0.0)))
+            final_score = base_score * (1.0 + lexical_weight * float(item.get("lexical_score", 0.0)))
+            item["score"] = float(final_score)
+
+        candidates_with_lexical.sort(key=lambda x: x["score"], reverse=True)
+        return candidates_with_lexical[:top_k]
 
 
 def retrieve(query: str, top_k: int = None) -> List[Dict[str, Any]]:

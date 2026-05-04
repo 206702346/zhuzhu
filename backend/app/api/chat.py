@@ -22,6 +22,7 @@ async def ask_question(request: ChatRequest):
             text=item["text"],
             hybrid_score=item.get("hybrid_score"),
             rerank_score=item.get("rerank_score"),
+            lexical_score=item.get("lexical_score"),
             vector_score=item.get("vector_score"),
             bm25_score=item.get("bm25_score"),
             hybrid_rank=item.get("hybrid_rank"),

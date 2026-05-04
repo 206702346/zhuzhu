@@ -82,6 +82,7 @@
               <span>最终分 {{ formatScore(item.score) }}</span>
               <span v-if="item.hybrid_score != null">融合分 {{ formatScore(item.hybrid_score) }}</span>
               <span v-if="item.rerank_score != null">重排分 {{ formatScore(item.rerank_score) }}</span>
+              <span v-if="item.lexical_score != null">词面分 {{ formatScore(item.lexical_score) }}</span>
             </div>
             <div class="source-text">{{ item.text }}</div>
 

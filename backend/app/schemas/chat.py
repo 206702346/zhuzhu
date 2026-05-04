@@ -15,6 +15,7 @@ class SourceItem(BaseModel):
 
     hybrid_score: Optional[float] = None
     rerank_score: Optional[float] = None
+    lexical_score: Optional[float] = None
 
     vector_score: Optional[float] = None
     bm25_score: Optional[float] = None
