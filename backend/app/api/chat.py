@@ -20,6 +20,15 @@ async def ask_question(request: ChatRequest):
             chunk_id=item["chunk_id"],
             score=item["score"],
             text=item["text"],
+            hybrid_score=item.get("hybrid_score"),
+            rerank_score=item.get("rerank_score"),
+            vector_score=item.get("vector_score"),
+            bm25_score=item.get("bm25_score"),
+            hybrid_rank=item.get("hybrid_rank"),
+            rerank_rank=item.get("rerank_rank"),
+            vector_rank=item.get("vector_rank"),
+            bm25_rank=item.get("bm25_rank"),
+            match_sources=item.get("match_sources", []),
         )
         for item in contexts
     ]

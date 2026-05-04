@@ -79,9 +79,18 @@
               <span>[引用 {{ index + 1 }}]</span>
               <span>{{ item.source }}</span>
               <span>chunk {{ item.chunk_id }}</span>
-              <span>score {{ formatScore(item.score) }}</span>
+              <span>最终分 {{ formatScore(item.score) }}</span>
+              <span v-if="item.hybrid_score != null">融合分 {{ formatScore(item.hybrid_score) }}</span>
+              <span v-if="item.rerank_score != null">重排分 {{ formatScore(item.rerank_score) }}</span>
             </div>
             <div class="source-text">{{ item.text }}</div>
+
+            <div class="score-breakdown">
+              <span v-if="item.vector_score != null">向量 {{ formatScore(item.vector_score) }}</span>
+              <span v-if="item.bm25_score != null">BM25 {{ formatScore(item.bm25_score) }}</span>
+              <span v-if="item.match_sources?.length">命中: {{ item.match_sources.join(' + ') }}</span>
+            </div>
+
           </article>
         </div>
         <p v-else class="tip">本次没有返回引用来源。</p>
@@ -692,6 +701,15 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.score-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 10px;
+  color: #93c5fd;
+  font-size: 13px;
 }
 
 </style>
