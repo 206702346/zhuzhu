@@ -12,6 +12,9 @@ backend/course/
 backend/data/uploads/*
 backend/data/index/*
 backend/data/metadata/*
+#backend/data/eval/*
+backend/data/*
+backend/resourcess/*
 
 # Models
 backend/models/
